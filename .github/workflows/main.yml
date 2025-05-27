@@ -3,14 +3,12 @@ on:
  workflow_dispatch: null
  schedule:
   - cron: 0 16 * * *
+permissions:
+ contents: write
 jobs:
- sync:
+ zdgx:
   runs-on: ubuntu-latest
-  permissions:
-   contents: write
   steps:
-   - name: 删除 _worker.js 文件
-     run: rm -f _worker.js
    - name: 检出仓库代码
      uses: actions/checkout@v4
    - name: 设置 Node.js 环境
@@ -22,10 +20,7 @@ jobs:
    - name: 下载原文件
      run: curl -sSL -o sourcefile.js
       https://raw.githubusercontent.com/cmliu/CF-Workers-SUB/refs/heads/main/_worker.js
-  # - name: 修改原文件
-    # run: |
-     # sed -i 's/#/#/g' sourcefile.js      
-   - name: 使用 Node.js 脚本混淆文件
+   - name: 混淆文件
      run: |
       javascript-obfuscator sourcefile.js --output _worker.js \
       --compact true \
@@ -34,10 +29,10 @@ jobs:
       --string-array true \
       --transform-object-keys true \
       --unicode-escape-sequence true
-   - name: 检查文件变化并提交
+   - name: 提交
      run: |
       git config --global user.name "github-actions[bot]"
       git config --global user.email "github-actions[bot]@users.noreply.github.com"
       git add _worker.js
-      git diff --cached --quiet || git commit --allow-empty-message -m ""
+      git commit --allow-empty-message -m ""
       git push
